@@ -1,8 +1,10 @@
-package main
+package geoip
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -13,84 +15,10 @@ type geoip_block struct {
 	locationid int
 }
 
-type geoip_location struct {
-	locId      int
-	country    string
-	region     string
-	city       string
-	postalCode string
-	latitude   string
-	longitude  string
-	metroCode  string
-	areaCode   string
-}
-
 type blockhouse struct {
-	geoip_blockfile string
-	geoip_blocks    []geoip_block
-}
-
-type locationhouse struct {
-	geoip_locationfile string
-	geoip_locations    []geoip_location
-}
-
-func NewLocationhouse(locationfile string) (*locationhouse, error) {
-	house := &locationhouse{
-		geoip_locationfile: locationfile,
-		geoip_locations:    make([]geoip_location, 0),
-	}
-	err := house.readlocation()
-	if err != nil {
-		return house, err
-	}
-	return house, nil
-}
-
-func (house *locationhouse) readlocation() error {
-	istream, err := os.Open(house.geoip_locationfile)
-	defer istream.Close()
-
-	if err != nil {
-		return err
-	}
-
-	scanner := bufio.NewScanner(istream)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		tmp := strings.Split(strings.Replace(line, "\"", "", -1), ",")
-		if len(tmp) != 9 {
-			continue
-		}
-
-		locId, err := strconv.Atoi(tmp[0])
-		if err != nil {
-			continue
-		}
-		country := tmp[1]
-		region := tmp[2]
-		city := tmp[3]
-		postalCode := tmp[4]
-		latitude := tmp[5]
-		longitude := tmp[6]
-		metroCode := tmp[7]
-		areaCode := tmp[8]
-
-		location := geoip_location{
-			locId:      locId,
-			country:    country,
-			region:     region,
-			city:       city,
-			postalCode: postalCode,
-			latitude:   latitude,
-			longitude:  longitude,
-			metroCode:  metroCode,
-			areaCode:   areaCode,
-		}
-		house.geoip_locations = append(house.geoip_locations, location)
-	}
-
-	return nil
+	geoip_blockfile  string
+	geoip_blocks     []geoip_block
+	geoip_blocks_len int
 }
 
 func NewBlockhouse(blockfile string) (*blockhouse, error) {
@@ -142,7 +70,7 @@ func (house *blockhouse) readblock() error {
 
 		house.geoip_blocks = append(house.geoip_blocks, block)
 	}
-
+	house.geoip_blocks_len = len(house.geoip_blocks)
 	return nil
 }
 
@@ -166,4 +94,22 @@ func (house *blockhouse) Less(i, j int) bool {
 	} else {
 		return true
 	}
+}
+
+func (house *blockhouse) Sort() {
+	sort.Sort(house)
+}
+
+func (house *blockhouse) Search(ipaddr int) int {
+	cmpfunc := func(i int) bool {
+		fmt.Printf("===========ipaddr===%v: %+v, %v\n", ipaddr, house.geoip_blocks[i], house.geoip_blocks[i].startip <= ipaddr && ipaddr <= house.geoip_blocks[i].endip)
+		if house.geoip_blocks[i].startip > ipaddr {
+			return true
+		} else if ipaddr > house.geoip_blocks[i].endip {
+			return false
+		} else {
+			return false
+		}
+	}
+	return sort.Search(house.geoip_blocks_len, cmpfunc)
 }
