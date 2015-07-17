@@ -2,7 +2,6 @@ package geoip
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"sort"
 	"strconv"
@@ -101,15 +100,17 @@ func (house *blockhouse) Sort() {
 }
 
 func (house *blockhouse) Search(ipaddr int) int {
-	cmpfunc := func(i int) bool {
-		fmt.Printf("===========ipaddr===%v: %+v, %v\n", ipaddr, house.geoip_blocks[i], house.geoip_blocks[i].startip <= ipaddr && ipaddr <= house.geoip_blocks[i].endip)
-		if house.geoip_blocks[i].startip > ipaddr {
-			return true
-		} else if ipaddr > house.geoip_blocks[i].endip {
-			return false
+	i, j := 0, house.geoip_blocks_len
+	for i < j {
+		h := i + (j-i)/2 // avoid overflow when computing h
+		// i ≤ h < j
+		if house.geoip_blocks[h].startip <= ipaddr && ipaddr <= house.geoip_blocks[h].endip{
+			return h
+		} else if ipaddr <= house.geoip_blocks[h].startip {
+			j = h + 1 
 		} else {
-			return false
+			i = h 
 		}
 	}
-	return sort.Search(house.geoip_blocks_len, cmpfunc)
+	return -1
 }

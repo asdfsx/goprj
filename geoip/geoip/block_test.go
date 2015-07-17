@@ -97,6 +97,8 @@ func TestBlockSearch(t *testing.T) {
 "7","9",3
 10,12,4
 13,15,5
+16,18,6
+19,21,7
 `
 	ostream, _ := os.Create(testfile)
 	ostream.WriteString(content)
@@ -115,7 +117,7 @@ func TestBlockSearch(t *testing.T) {
 	fmt.Printf("after sort:\n%+v\n", house)
 
 	location := house.Search(14)
-	fmt.Printf("locationid searched from blockhouse by ip addr %v: %v\n", 5, location)
+	fmt.Printf("locationid searched from blockhouse by ip addr %v: %v\n", 14, house.geoip_blocks[location])
 
 	//delete testfile
 	os.Remove(testfile)
