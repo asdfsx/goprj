@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"geoip"
 )
 
 const (
@@ -22,14 +23,16 @@ type config struct {
 	*flag.FlagSet
 	ipaddr    string "ipaddr to listen"
 	port      uint   "port to listen"
-	geoipfile string "geoip filepath"
+	geoblockfile string "geoip block filepath"
+	geolocationfile string "geoip location filepath"
 }
 
 func NewConfig() *config {
 	cfg := &config{
 		ipaddr:    "0.0.0.0",
 		port:      12345,
-		geoipfile: "geoip.csv",
+		geoblockfile: "geoip.csv",
+		geolocationfile: "geolocation.csv"
 	}
 	cfg.FlagSet = flag.NewFlagSet("geoip", flag.ContinueOnError)
 	fs := cfg.FlagSet
@@ -39,7 +42,8 @@ func NewConfig() *config {
 		fmt.Println(flags)
 	}
 
-	fs.StringVar(&cfg.geoipfile, "geoipfile", "geoip.csv", "path to the geoip file")
+	fs.StringVar(&cfg.geoblockfile, "geoblockfile", "geoblock.csv", "path to the geoip block file")
+	fs.StringVar(&cfg.geolocationfile, "geolocationfile", "geolocation.csv", "path to the geoip location file")
 	fs.StringVar(&cfg.ipaddr, "ipaddr", "0.0.0.0", "ipaddr to listen")
 	fs.UintVar(&cfg.port, "port", 12345, "port to listen")
 	return cfg

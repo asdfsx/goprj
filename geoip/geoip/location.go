@@ -21,13 +21,13 @@ type geoip_location struct {
 
 type locationhouse struct {
 	geoip_locationfile string
-	geoip_locations    []geoip_location
+	geoip_locations    [] *geoip_location
 }
 
 func NewLocationhouse(locationfile string) (*locationhouse, error) {
 	house := &locationhouse{
 		geoip_locationfile: locationfile,
-		geoip_locations:    make([]geoip_location, 0),
+		geoip_locations:    make([]*geoip_location, 0),
 	}
 	err := house.readlocation()
 	if err != nil {
@@ -76,8 +76,12 @@ func (house *locationhouse) readlocation() error {
 			metroCode:  metroCode,
 			areaCode:   areaCode,
 		}
-		house.geoip_locations = append(house.geoip_locations, location)
+		house.geoip_locations = append(house.geoip_locations, &location)
 	}
 
 	return nil
+}
+
+func (house *locationhouse) getlocation(locationid int) *geoip_location {
+	return house.geoip_locations[locationid]
 }
