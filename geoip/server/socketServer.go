@@ -11,6 +11,7 @@ import (
 type socketServer struct {
 	ipaddr   string
 	listener net.Listener
+	handler  func(net.Conn)
 }
 
 var (
@@ -46,7 +47,7 @@ func putBufioReader(br *bufio.Reader) {
 }
 
 func NewSocketServer(ipaddr string) *socketServer {
-	return &socketServer{ipaddr: ipaddr}
+	return &socketServer{ipaddr: ipaddr, handler: handlerFunc}
 }
 
 func (server *socketServer) Listen() error {
@@ -63,7 +64,17 @@ func (server *socketServer) Accept() (c net.Conn, err error) {
 	return
 }
 
-func (server *socketServer) handlerFunc(conn net.Conn) {
+func (server *socketServer) Run() {
+	for {
+		conn, err := server.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+		go server.handler(conn)
+	}
+}
+
+func handlerFunc(conn net.Conn) {
 	defer conn.Close()
 	reader := newBufioReader(io.LimitReader(conn, noLimit))
 	result, err := reader.ReadString('\n')
@@ -74,15 +85,5 @@ func (server *socketServer) handlerFunc(conn net.Conn) {
 	_, err = conn.Write([]byte(result))
 	if err != nil {
 		return
-	}
-}
-
-func (server *socketServer) Run() {
-	for {
-		conn, err := server.Accept()
-		if err != nil {
-			log.Fatal(err)
-		}
-		go server.handlerFunc(conn)
 	}
 }

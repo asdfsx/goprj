@@ -43,7 +43,7 @@ locId,country,region,city,postalCode,latitude,longitude,metroCode,areaCode
 	os.Remove(testfile)
 }
 
-func TestGetLocation(t *testing.T){
+func TestGetLocation(t *testing.T) {
 	defer func() {
 		if err := recover(); err != nil {
 			debug.PrintStack()
@@ -73,8 +73,14 @@ locId,country,region,city,postalCode,latitude,longitude,metroCode,areaCode
 	if err != nil {
 		t.Errorf("Fatal Error:%s\n", err)
 	}
-	fmt.Printf("%+v", *house.getlocation(5))
 
+	if val, ok := house.Geoip_locations[5]; ok {
+		fmt.Printf("%+v", val)
+	}
+
+	if val, ok := house.Geoip_locations[8]; ok {
+		fmt.Printf("%+v", val)
+	}
 	//delete testfile
 	os.Remove(testfile)
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type geoip_location struct {
+type Geoip_location struct {
 	locId      int
 	country    string
 	region     string
@@ -19,15 +19,15 @@ type geoip_location struct {
 	areaCode   string
 }
 
-type locationhouse struct {
-	geoip_locationfile string
-	geoip_locations    [] *geoip_location
+type Locationhouse struct {
+	Geoip_locationfile string
+	Geoip_locations    map[int]*Geoip_location
 }
 
-func NewLocationhouse(locationfile string) (*locationhouse, error) {
-	house := &locationhouse{
-		geoip_locationfile: locationfile,
-		geoip_locations:    make([]*geoip_location, 0),
+func NewLocationhouse(locationfile string) (*Locationhouse, error) {
+	house := &Locationhouse{
+		Geoip_locationfile: locationfile,
+		Geoip_locations:    make(map[int]*Geoip_location, 0),
 	}
 	err := house.readlocation()
 	if err != nil {
@@ -36,8 +36,8 @@ func NewLocationhouse(locationfile string) (*locationhouse, error) {
 	return house, nil
 }
 
-func (house *locationhouse) readlocation() error {
-	istream, err := os.Open(house.geoip_locationfile)
+func (house *Locationhouse) readlocation() error {
+	istream, err := os.Open(house.Geoip_locationfile)
 	defer istream.Close()
 
 	if err != nil {
@@ -65,7 +65,7 @@ func (house *locationhouse) readlocation() error {
 		metroCode := tmp[7]
 		areaCode := tmp[8]
 
-		location := geoip_location{
+		location := Geoip_location{
 			locId:      locId,
 			country:    country,
 			region:     region,
@@ -76,12 +76,8 @@ func (house *locationhouse) readlocation() error {
 			metroCode:  metroCode,
 			areaCode:   areaCode,
 		}
-		house.geoip_locations = append(house.geoip_locations, &location)
+		house.Geoip_locations[locId] = &location
 	}
 
 	return nil
-}
-
-func (house *locationhouse) getlocation(locationid int) *geoip_location {
-	return house.geoip_locations[locationid]
 }

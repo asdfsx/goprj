@@ -15,4 +15,19 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("%+v\n", cfg)
+
+	t := map[string]string{"test":"test"}
+
+	if val, ok := t["1"]; ok{
+		fmt.Println(val, ok)
+	} else{
+		fmt.Println(val, ok)
+	}
+
+	a, b := getTest()
+	fmt.Println(a, b)
+}
+
+func getTest() (string, int){
+return "test",0
 }

@@ -116,8 +116,14 @@ func TestBlockSearch(t *testing.T) {
 	house.Sort()
 	fmt.Printf("after sort:\n%+v\n", house)
 
-	location := house.Search(14)
-	fmt.Printf("locationid searched from blockhouse by ip addr %v: %v\n", 14, house.geoip_blocks[location])
+
+	if location, ok := house.Search(1); ok {
+		fmt.Printf("locationid searched from Blockhouse by ip addr %v: %v\n", 1, house.geoip_blocks[location])
+	} else {
+		fmt.Printf("locationid searched from Blockhouse by ip addr %v: not found:%v\n", 1, location)
+	}
+
+
 
 	//delete testfile
 	os.Remove(testfile)

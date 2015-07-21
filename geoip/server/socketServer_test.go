@@ -19,7 +19,7 @@ func TestSocketServer(t *testing.T) {
 
 	t.Log("Starting TestSocketServer...")
 
-	server := NewSocketServer("0.0.0.0:12345")
+	server := NewSocketServer("0.0.0.0:12346")
 	err := server.Listen()
 	if err != nil {
 		t.Log(err)
@@ -29,7 +29,7 @@ func TestSocketServer(t *testing.T) {
 
 	t.Log("Start connect SocketServer...")
 
-	conn, err := net.Dial("tcp", "127.0.0.1:12345")
+	conn, err := net.Dial("tcp", "127.0.0.1:12346")
 	if err != nil {
 		t.Error(err)
 	}

@@ -8,22 +8,22 @@ import (
 	"strings"
 )
 
-type geoip_block struct {
+type Geoip_block struct {
 	startip    int
 	endip      int
 	locationid int
 }
 
-type blockhouse struct {
+type Blockhouse struct {
 	geoip_blockfile  string
-	geoip_blocks     []geoip_block
+	geoip_blocks     []Geoip_block
 	geoip_blocks_len int
 }
 
-func NewBlockhouse(blockfile string) (*blockhouse, error) {
-	house := &blockhouse{
+func NewBlockhouse(blockfile string) (*Blockhouse, error) {
+	house := &Blockhouse{
 		geoip_blockfile: blockfile,
-		geoip_blocks:    make([]geoip_block, 0),
+		geoip_blocks:    make([]Geoip_block, 0),
 	}
 
 	err := house.readblock()
@@ -33,7 +33,7 @@ func NewBlockhouse(blockfile string) (*blockhouse, error) {
 	return house, nil
 }
 
-func (house *blockhouse) readblock() error {
+func (house *Blockhouse) readblock() error {
 	istream, err := os.Open(house.geoip_blockfile)
 	defer istream.Close()
 
@@ -61,7 +61,7 @@ func (house *blockhouse) readblock() error {
 			continue
 		}
 
-		block := geoip_block{
+		block := Geoip_block{
 			startip:    startip,
 			endip:      endip,
 			locationid: locationid,
@@ -73,15 +73,15 @@ func (house *blockhouse) readblock() error {
 	return nil
 }
 
-func (house *blockhouse) Len() int {
+func (house *Blockhouse) Len() int {
 	return len(house.geoip_blocks)
 }
 
-func (house *blockhouse) Swap(i, j int) {
+func (house *Blockhouse) Swap(i, j int) {
 	house.geoip_blocks[i], house.geoip_blocks[j] = house.geoip_blocks[j], house.geoip_blocks[i]
 }
 
-func (house *blockhouse) Less(i, j int) bool {
+func (house *Blockhouse) Less(i, j int) bool {
 	if house.geoip_blocks[i].startip < house.geoip_blocks[j].startip {
 		return true
 	} else if house.geoip_blocks[i].startip > house.geoip_blocks[j].startip {
@@ -95,22 +95,22 @@ func (house *blockhouse) Less(i, j int) bool {
 	}
 }
 
-func (house *blockhouse) Sort() {
+func (house *Blockhouse) Sort() {
 	sort.Sort(house)
 }
 
-func (house *blockhouse) Search(ipaddr int) int {
+func (house *Blockhouse) Search(ipaddr int) (int, bool) {
 	i, j := 0, house.geoip_blocks_len
-	for i < j {
+	for i <= j {
 		h := i + (j-i)/2 // avoid overflow when computing h
 		// i ≤ h < j
-		if house.geoip_blocks[h].startip <= ipaddr && ipaddr <= house.geoip_blocks[h].endip{
-			return h
-		} else if ipaddr <= house.geoip_blocks[h].startip {
-			j = h + 1 
-		} else {
-			i = h 
+		if house.geoip_blocks[h].startip <= ipaddr && ipaddr <= house.geoip_blocks[h].endip {
+			return h, true
+		} else if ipaddr < house.geoip_blocks[h].startip {
+			j = h - 1
+		} else if ipaddr > house.geoip_blocks[h].endip {
+			i = h + 1
 		}
 	}
-	return -1
+	return 0, false
 }
