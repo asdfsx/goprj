@@ -1,12 +1,12 @@
 package server
 
 import (
-	"strings"
 	"fmt"
 	"geoip/geoip"
+	"io"
 	"net"
 	"strconv"
-	"io"
+	"strings"
 )
 
 type geoipserver struct {
@@ -53,8 +53,8 @@ func (server *geoipserver) HandlerSocket(conn net.Conn) {
 		return
 	}
 	ipaddr, err := strconv.Atoi(strings.TrimSpace(ipstr))
-	if err != nil{
-		conn.Write([]byte(fmt.Sprintf("ipaddr format error: %v\n",ipstr)))
+	if err != nil {
+		conn.Write([]byte(fmt.Sprintf("ipaddr format error: %v\n", ipstr)))
 		return
 	}
 

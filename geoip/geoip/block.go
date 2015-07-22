@@ -105,7 +105,7 @@ func (house *Blockhouse) Search(ipaddr int) (int, bool) {
 		h := i + (j-i)/2 // avoid overflow when computing h
 		// i ≤ h < j
 		if house.geoip_blocks[h].startip <= ipaddr && ipaddr <= house.geoip_blocks[h].endip {
-			return h, true
+			return house.geoip_blocks[h].locationid, true
 		} else if ipaddr < house.geoip_blocks[h].startip {
 			j = h - 1
 		} else if ipaddr > house.geoip_blocks[h].endip {

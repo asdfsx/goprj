@@ -2,11 +2,11 @@ package server
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net"
 	"os"
 	"runtime/debug"
 	"testing"
-	"net"
-	"io/ioutil"
 	"time"
 )
 
@@ -73,7 +73,7 @@ func TestGetLocation(t *testing.T) {
 		t.Errorf("Fatal Error:%s\n", err)
 	}
 	fmt.Println("=============blocks:", server.bhouse)
-	fmt.Println("=====================get location 123: ",server.GetLocation(123))
+	fmt.Println("=====================get location 123: ", server.GetLocation(123))
 }
 
 func TestHandlerFunc(t *testing.T) {
@@ -96,7 +96,7 @@ func TestHandlerFunc(t *testing.T) {
 		t.Errorf("Fatal Error:%s\n", err)
 	}
 	fmt.Println("=============blocks:", server.bhouse)
-	fmt.Println("=====================get location 123: ",server.GetLocation(123))
+	fmt.Println("=====================get location 123: ", server.GetLocation(123))
 
 	socketserver := NewSocketServer("0.0.0.0:12345")
 	socketserver.Handler = server.HandlerSocket
@@ -106,10 +106,10 @@ func TestHandlerFunc(t *testing.T) {
 	}
 	fmt.Printf("%+v\n", server)
 
-    go socketserver.Run()
+	go socketserver.Run()
 
 	t.Log("Start connect SocketServer...")
-    t.Log("Start connect SocketServer...")
+	t.Log("Start connect SocketServer...")
 
 	conn, err := net.Dial("tcp", "127.0.0.1:12345")
 	if err != nil {
@@ -122,9 +122,9 @@ func TestHandlerFunc(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println("----------------------result",string(result))
+	fmt.Println("----------------------result", string(result))
 	time.Sleep(50)
-    conn.Close()
+	conn.Close()
 }
 
 func createfile(filename, content string) error {

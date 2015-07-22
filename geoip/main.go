@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"geoip/server"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"log"
 )
 
 const (
@@ -27,7 +27,7 @@ type config struct {
 	ipaddr          string "ipaddr to listen"
 	geoblockfile    string "geoip block filepath"
 	geolocationfile string "geoip location filepath"
-	pprof_ipaddr string "pprof ipaddr"
+	pprof_ipaddr    string "pprof ipaddr"
 }
 
 func NewConfig() *config {
@@ -35,7 +35,7 @@ func NewConfig() *config {
 		ipaddr:          "0.0.0.0:8080",
 		geoblockfile:    "geoip.csv",
 		geolocationfile: "geolocation.csv",
-		pprof_ipaddr: "0.0.0.0:6060",
+		pprof_ipaddr:    "0.0.0.0:6060",
 	}
 	cfg.FlagSet = flag.NewFlagSet("geoip", flag.ContinueOnError)
 	fs := cfg.FlagSet
@@ -67,6 +67,11 @@ func (cfg *config) Parse(arguments []string) error {
 	return nil
 }
 
+func (cfg *config) String() string {
+	return fmt.Sprintf("\nipaddr:%v,\npprof_ipaddr:%v,\ngeoblockfile:%v,\ngeolocationfile:%v\n",
+		cfg.ipaddr, cfg.pprof_ipaddr, cfg.geoblockfile, cfg.geolocationfile)
+}
+
 func main() {
 	cfg := NewConfig()
 	err := cfg.Parse(os.Args[1:])
@@ -78,10 +83,11 @@ func main() {
 	log.Printf("%+v\n", cfg)
 
 	go func() {
-        log.Println(http.ListenAndServe(cfg.pprof_ipaddr, nil))
-    }()
+		log.Println(http.ListenAndServe(cfg.pprof_ipaddr, nil))
+	}()
 
 	geoipserver, err := server.NewGeoipServer(cfg.geoblockfile, cfg.geolocationfile)
+
 	if err != nil {
 		log.Printf("%v\n", err)
 		os.Exit(1)
@@ -93,6 +99,5 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%+v\n", socketserver)
 	socketserver.Run()
 }
