@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	usage = `usage: geoip [flags]
+	usage = `usage:  geoip [flags]
 	geoip server query for geoip info via ipaddress
 	geoip -h| --help`
 
