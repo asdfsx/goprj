@@ -16,6 +16,9 @@ type geoipserver struct {
 	lhouse       *geoip.Locationhouse
 }
 
+const noLimit int64 = (1 << 63) - 1
+const limit1k int64 = 1024
+
 func NewGeoipServer(blockfile, locationfile string) (server *geoipserver, err error) {
 	server = &geoipserver{blockfile: blockfile, locationfile: locationfile}
 	bhouse, err := geoip.NewBlockhouse(blockfile)
@@ -42,9 +45,9 @@ func (server *geoipserver) GetLocation(ipaddr int) string {
 	return "not found"
 }
 
-func (server *geoipserver) handlerFunc(conn net.Conn) {
+func (server *geoipserver) handlerSocket(conn net.Conn) {
 	defer conn.Close()
-	reader := newBufioReader(io.LimitReader(conn, noLimit))
+	reader := newBufioReader(io.LimitReader(conn, limit1k))
 	ipstr, err := reader.ReadString('\n')
 	if err != nil {
 		return

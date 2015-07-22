@@ -20,8 +20,6 @@ var (
 	bufioWriter4kPool sync.Pool
 )
 
-const noLimit int64 = (1 << 63) - 1
-
 func bufioWriterPool(size int) *sync.Pool {
 	switch size {
 	case 2 << 10:

@@ -99,7 +99,7 @@ func TestHandlerFunc(t *testing.T) {
 	fmt.Println("=====================get location 123: ",server.GetLocation(123))
 
 	socketserver := NewSocketServer("0.0.0.0:12345")
-	socketserver.handler = server.handlerFunc
+	socketserver.handler = server.handlerSocket
 	err = socketserver.Listen()
 	if err != nil {
 		t.Log(err)
