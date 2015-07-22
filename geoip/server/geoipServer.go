@@ -45,7 +45,7 @@ func (server *geoipserver) GetLocation(ipaddr int) string {
 	return "not found"
 }
 
-func (server *geoipserver) handlerSocket(conn net.Conn) {
+func (server *geoipserver) HandlerSocket(conn net.Conn) {
 	defer conn.Close()
 	reader := newBufioReader(io.LimitReader(conn, limit1k))
 	ipstr, err := reader.ReadString('\n')

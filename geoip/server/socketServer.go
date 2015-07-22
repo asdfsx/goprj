@@ -11,7 +11,7 @@ import (
 type socketServer struct {
 	ipaddr   string
 	listener net.Listener
-	handler  func(net.Conn)
+	Handler  func(net.Conn)
 }
 
 var (
@@ -45,7 +45,7 @@ func putBufioReader(br *bufio.Reader) {
 }
 
 func NewSocketServer(ipaddr string) *socketServer {
-	return &socketServer{ipaddr: ipaddr, handler: handlerFunc}
+	return &socketServer{ipaddr: ipaddr, Handler: handlerFunc}
 }
 
 func (server *socketServer) Listen() error {
@@ -68,7 +68,7 @@ func (server *socketServer) Run() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go server.handler(conn)
+		go server.Handler(conn)
 	}
 }
 

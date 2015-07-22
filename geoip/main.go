@@ -88,7 +88,7 @@ func main() {
 	}
 
 	socketserver := server.NewSocketServer(cfg.ipaddr)
-	socketserver.handler = geoipserver.handlerSocket
+	socketserver.Handler = geoipserver.HandlerSocket
 	err = socketserver.Listen()
 	if err != nil {
 		log.Println(err)
