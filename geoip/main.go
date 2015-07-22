@@ -16,10 +16,10 @@ const (
 	geoip -h| --help`
 
 	flags = `
-	--ipaddr 127.0.0.1:8080
-	--block-file geoblock.csv
-	--locationi-file geolocation.csv
-	--pprof-ipaddr 127.0.0.1:6060`
+	-ipaddr 127.0.0.1:8080
+	-block-file geoblock.csv
+	-location-file geolocation.csv
+	-pprof-ipaddr 127.0.0.1:6060`
 )
 
 type config struct {
@@ -45,10 +45,10 @@ func NewConfig() *config {
 		fmt.Println(flags)
 	}
 
-	fs.StringVar(&cfg.geoblockfile, "geoblockfile", "geoblock.csv", "path to the geoip block file")
-	fs.StringVar(&cfg.geolocationfile, "geolocationfile", "geolocation.csv", "path to the geoip location file")
+	fs.StringVar(&cfg.geoblockfile, "block-file", "geoblock.csv", "path to the geoip block file")
+	fs.StringVar(&cfg.geolocationfile, "location-file", "geolocation.csv", "path to the geoip location file")
 	fs.StringVar(&cfg.ipaddr, "ipaddr", "0.0.0.0:8080", "ipaddr to listen")
-	fs.StringVar(&cfg.pprof_ipaddr, "pprof_ipaddr", "0.0.0.0:6060", "ipaddr for pprof to listen")
+	fs.StringVar(&cfg.pprof_ipaddr, "pprof-ipaddr", "0.0.0.0:6060", "ipaddr for pprof to listen")
 	return cfg
 }
 
@@ -99,5 +99,6 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("geoipserver running")
 	socketserver.Run()
 }

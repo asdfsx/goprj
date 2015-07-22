@@ -1,9 +1,11 @@
 package main
 
 import (
+	"time"
+	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -21,14 +23,18 @@ const (
 
 type config struct {
 	*flag.FlagSet
-	ipaddr     string "ipaddr for query"
-	serveraddr string "ipaddr of geoipserver"
+	ipaddr      string "ipaddr for query"
+	serveraddr  string "ipaddr of geoipserver"
+	connections int    "how many connections to create"
+	second      int    "how long to do the test"
 }
 
 func NewConfig() *config {
 	cfg := &config{
-		ipaddr:     "1",
-		serveraddr: "0.0.0.0:8080",
+		ipaddr:      "16779264",
+		serveraddr:  "0.0.0.0:8080",
+		connections: 100,
+		second:      30,
 	}
 	cfg.FlagSet = flag.NewFlagSet("geoipclient", flag.ContinueOnError)
 	fs := cfg.FlagSet
@@ -39,7 +45,9 @@ func NewConfig() *config {
 	}
 
 	fs.StringVar(&cfg.serveraddr, "serveraddr", "0.0.0.0:8080", "geoipserver ipaddr")
-	fs.StringVar(&cfg.ipaddr, "ipaddr", "1", "ipaddr to query")
+	fs.StringVar(&cfg.ipaddr, "ipaddr", "16779264", "ipaddr to query")
+	fs.IntVar(&cfg.connections, "connections", 100, "how many connections to create")
+	fs.IntVar(&cfg.second, "second", 30, "how many connections to create")
 	return cfg
 }
 
@@ -58,6 +66,25 @@ func (cfg *config) parse(arguments []string) error {
 	return nil
 }
 
+func doquery(serveraddr, ipaddr string) {
+	conn, err := net.Dial("tcp", serveraddr)
+	if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		defer conn.Close()
+	for {
+		conn.Write([]byte(ipaddr + "\n"))
+
+		reader := bufio.NewReader(io.LimitReader(conn, 1024))
+		_, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println(err)
+		}
+		//fmt.Println("result:", string(result))
+	}
+}
+
 func main() {
 	cfg := NewConfig()
 	err := cfg.Parse(os.Args[1:])
@@ -65,18 +92,18 @@ func main() {
 		log.Printf("%v\n", err)
 		os.Exit(1)
 	}
+	fmt.Println("connect to:", cfg.serveraddr)
 
-	conn, err := net.Dial("tcp", cfg.serveraddr)
-	defer conn.Close()
-
-	if err != nil {
-		fmt.Println(err)
+    i := 0
+    for i < cfg.connections{
+	    go doquery(cfg.serveraddr, cfg.ipaddr)
+		i += 1
 	}
-	conn.Write([]byte(cfg.ipaddr + "\n"))
 
-	result, err := ioutil.ReadAll(conn)
-	if err != nil {
-		fmt.Println(err)
+    i = 0
+    for i < cfg.second{
+		fmt.Println("========time:",i)
+		time.Sleep(1 * time.Second)
+		i += 1
 	}
-	fmt.Println("result:", string(result))
 }

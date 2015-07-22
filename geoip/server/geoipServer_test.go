@@ -13,9 +13,9 @@ import (
 const (
 	blockfilename = "testblock.txt"
 	blockcontent  = `startip,endip,location
-"123","123","123"
+"123"	"123"	"123"
 "a","b","c"
-1,2,3
+1	2	3
 1,2,3,4
 1,2,3,
 `
@@ -28,6 +28,15 @@ locId,country,region,city,postalCode,latitude,longitude,metroCode,areaCode
 4,"AD","","","",42.5000,1.5000,,
 5,"AE","","","",24.0000,54.0000,,
 6,"AF","","","",33.0000,65.0000,,
+`
+
+	location1content = `1	O1|O1(not set)|O1(not set)|0.0000|0.0000
+2	Asia/Pacific Region|Asia/Pacific Region(not set)|Asia/Pacific Region(not set)|35.0000|105.0000
+3	Europe|Europe(not set)|Europe(not set)|47.0000|8.0000
+4	Andorra|Andorra(not set)|Andorra(not set)|42.5000|1.5000
+5	United Arab Emirates|United Arab Emirates(not set)|United Arab Emirates(not set)|24.0000|54.0000
+6	Afghanistan|Afghanistan(not set)|Afghanistan(not set)|33.0000|65.0000
+7	Antigua and Barbuda|Antigua and Barbuda(not set)|Antigua and Barbuda(not set)|17.0500|-61.8000
 `
 )
 
@@ -64,7 +73,7 @@ func TestGetLocation(t *testing.T) {
 	}()
 
 	createfile(blockfilename, blockcontent)
-	createfile(locationfilename, locationcontent)
+	createfile(locationfilename, location1content)
 
 	t.Log("Starting TestNewGeoipServer...")
 
@@ -73,7 +82,7 @@ func TestGetLocation(t *testing.T) {
 		t.Errorf("Fatal Error:%s\n", err)
 	}
 	fmt.Println("=============blocks:", server.bhouse)
-	fmt.Println("=====================get location 123: ", server.GetLocation(123))
+	fmt.Println("=====================get location 1: ", server.GetLocation(1))
 }
 
 func TestHandlerFunc(t *testing.T) {
@@ -87,7 +96,7 @@ func TestHandlerFunc(t *testing.T) {
 	}()
 
 	createfile(blockfilename, blockcontent)
-	createfile(locationfilename, locationcontent)
+	createfile(locationfilename, location1content)
 
 	t.Log("Starting TesthandlerFunc...")
 
@@ -96,7 +105,7 @@ func TestHandlerFunc(t *testing.T) {
 		t.Errorf("Fatal Error:%s\n", err)
 	}
 	fmt.Println("=============blocks:", server.bhouse)
-	fmt.Println("=====================get location 123: ", server.GetLocation(123))
+	fmt.Println("=====================get location 1: ", server.GetLocation(1))
 
 	socketserver := NewSocketServer("0.0.0.0:12345")
 	socketserver.Handler = server.HandlerSocket
@@ -115,7 +124,7 @@ func TestHandlerFunc(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	conn.Write([]byte("123\n"))
+	conn.Write([]byte("1\n"))
 	fmt.Println("=======Write Finish")
 
 	result, err := ioutil.ReadAll(conn)

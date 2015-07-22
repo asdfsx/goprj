@@ -9,21 +9,24 @@ import (
 )
 
 type Geoip_block struct {
-	startip    int
-	endip      int
-	locationid int
+	Startip    int
+	Endip      int
+	Locationid int
 }
 
 type Blockhouse struct {
-	geoip_blockfile  string
-	geoip_blocks     []Geoip_block
-	geoip_blocks_len int
+	Geoip_blockfile  string
+	Geoip_blocks     []Geoip_block
+	Geoip_blocks_len int
 }
+
+//const seprate = ","
+const seprate = "\t"
 
 func NewBlockhouse(blockfile string) (*Blockhouse, error) {
 	house := &Blockhouse{
-		geoip_blockfile: blockfile,
-		geoip_blocks:    make([]Geoip_block, 0),
+		Geoip_blockfile: blockfile,
+		Geoip_blocks:    make([]Geoip_block, 0),
 	}
 
 	err := house.readblock()
@@ -34,7 +37,7 @@ func NewBlockhouse(blockfile string) (*Blockhouse, error) {
 }
 
 func (house *Blockhouse) readblock() error {
-	istream, err := os.Open(house.geoip_blockfile)
+	istream, err := os.Open(house.Geoip_blockfile)
 	defer istream.Close()
 
 	if err != nil {
@@ -44,51 +47,51 @@ func (house *Blockhouse) readblock() error {
 	scanner := bufio.NewScanner(istream)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		tmp := strings.Split(strings.Replace(line, "\"", "", -1), ",")
+		tmp := strings.Split(strings.Replace(line, "\"", "", -1), seprate)
 		if len(tmp) != 3 {
 			continue
 		}
-		startip, err := strconv.Atoi(tmp[0])
+		Startip, err := strconv.Atoi(tmp[0])
 		if err != nil {
 			continue
 		}
-		endip, err := strconv.Atoi(tmp[1])
+		Endip, err := strconv.Atoi(tmp[1])
 		if err != nil {
 			continue
 		}
-		locationid, err := strconv.Atoi(tmp[2])
+		Locationid, err := strconv.Atoi(tmp[2])
 		if err != nil {
 			continue
 		}
 
 		block := Geoip_block{
-			startip:    startip,
-			endip:      endip,
-			locationid: locationid,
+			Startip:    Startip,
+			Endip:      Endip,
+			Locationid: Locationid,
 		}
 
-		house.geoip_blocks = append(house.geoip_blocks, block)
+		house.Geoip_blocks = append(house.Geoip_blocks, block)
 	}
-	house.geoip_blocks_len = len(house.geoip_blocks)
+	house.Geoip_blocks_len = len(house.Geoip_blocks)
 	return nil
 }
 
 func (house *Blockhouse) Len() int {
-	return len(house.geoip_blocks)
+	return len(house.Geoip_blocks)
 }
 
 func (house *Blockhouse) Swap(i, j int) {
-	house.geoip_blocks[i], house.geoip_blocks[j] = house.geoip_blocks[j], house.geoip_blocks[i]
+	house.Geoip_blocks[i], house.Geoip_blocks[j] = house.Geoip_blocks[j], house.Geoip_blocks[i]
 }
 
 func (house *Blockhouse) Less(i, j int) bool {
-	if house.geoip_blocks[i].startip < house.geoip_blocks[j].startip {
+	if house.Geoip_blocks[i].Startip < house.Geoip_blocks[j].Startip {
 		return true
-	} else if house.geoip_blocks[i].startip > house.geoip_blocks[j].startip {
+	} else if house.Geoip_blocks[i].Startip > house.Geoip_blocks[j].Startip {
 		return false
-	} else if house.geoip_blocks[i].endip < house.geoip_blocks[j].endip {
+	} else if house.Geoip_blocks[i].Endip < house.Geoip_blocks[j].Endip {
 		return true
-	} else if house.geoip_blocks[i].endip > house.geoip_blocks[j].endip {
+	} else if house.Geoip_blocks[i].Endip > house.Geoip_blocks[j].Endip {
 		return false
 	} else {
 		return true
@@ -100,16 +103,19 @@ func (house *Blockhouse) Sort() {
 }
 
 func (house *Blockhouse) Search(ipaddr int) (int, bool) {
-	i, j := 0, house.geoip_blocks_len
-	for i <= j {
-		h := i + (j-i)/2 // avoid overflow when computing h
-		// i ≤ h < j
-		if house.geoip_blocks[h].startip <= ipaddr && ipaddr <= house.geoip_blocks[h].endip {
-			return house.geoip_blocks[h].locationid, true
-		} else if ipaddr < house.geoip_blocks[h].startip {
-			j = h - 1
-		} else if ipaddr > house.geoip_blocks[h].endip {
-			i = h + 1
+	if house.Geoip_blocks_len > 0 {
+
+		i, j := 0, house.Geoip_blocks_len
+		for i <= j {
+			h := i + (j-i)/2 // avoid overflow when computing h
+			// i ≤ h < j
+			if house.Geoip_blocks[h].Startip <= ipaddr && ipaddr <= house.Geoip_blocks[h].Endip {
+				return house.Geoip_blocks[h].Locationid, true
+			} else if ipaddr < house.Geoip_blocks[h].Startip {
+				j = h - 1
+			} else if ipaddr > house.Geoip_blocks[h].Endip {
+				i = h + 1
+			}
 		}
 	}
 	return 0, false
